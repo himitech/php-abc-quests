@@ -122,16 +122,27 @@ $ sudo vi /etc/apache2/httpd.conf
 
 ```
 #DocumentRoot "/Library/WebServer/Documents"
-DocumentRoot "~/workspace"
+DocumentRoot "/Users/あなたのユーザ名/workspace"
 ```
 
-> 既存の行を `#` でコメントアウトして、`~/workspace` がドキュメントルートになるように設定し直しています。
+> 既存の行を `#` でコメントアウトして、ホームディレクトリ直下の `workspace` というディレクトリがドキュメントルートになるように設定し直しています。
+>
+> なお、ユーザ名が分からない場合はターミナルで
+>
+> ```bash
+> $ cd ~
+> $ pwd
+> /Users/あなたのユーザ名
+> ```
+>
+> とすれば確認できます。
+
 
 ドキュメントルートを変更した場合は以下の箇所も変更が必要なので要注意です。
 
 ```
 #<Directory "/Library/WebServer/Documents">
-<Directory "~/workspace">
+<Directory "/Users/あなたのユーザ名/workspace">
     〜略〜
 </Directory>
 ```
@@ -141,7 +152,7 @@ DocumentRoot "~/workspace"
 上記で変更した
 
 ```
-<Directory "~/workspace">
+<Directory "/Users/あなたのユーザ名/workspace">
     〜略〜
 </Directory>
 ```
@@ -160,6 +171,10 @@ DocumentRoot "~/workspace"
 ```
 
 この行の先頭の `#` を削除してコメントインしてください。
+
+```
+LoadModule php5_module libexec/apache2/libphp5.so
+```
 
 さらに、
 

@@ -6,14 +6,24 @@ PHP はもともと **HTML の中に部分的にプログラムを埋め込む**
 
 百聞は一見に如かずです。試しに `~/workspace/php-abc-quests/practices/03/introduction/index.php` を作成して以下のコードを書いてみてください。
 
+> ##### ポイント :bulb:
+>
+> このとき、ファイルの文字コードは `UTF-8` で保存するようにしてください。
+>
+> `<meta charset="UTF-8"/>` で指定した文字コードとファイルの文字コードが異なっていると、ブラウザで表示したときに日本語が文字化けする原因になります。
+>
+> `UTF-8` を選ぶ理由については今の時点では深く考えなくてもよいですが、ファイルによって文字コードがバラバラになると文字化けの原因になるので、
+> テキストエディタのデフォルトの文字コードを `UTF-8` に設定しておくことを強くお勧めします。
+
 ```php
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8"/>
     <title>test</title>
 </head>
 <body>
-    <p>Hello, World!</p>
+<p>Hello, World!</p>
 </body>
 </html>
 ```
@@ -36,10 +46,11 @@ Hello, World!
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8"/>
     <title>test</title>
 </head>
 <body>
-    <p>Hello, <?php echo 'PHP'; ?>!</p>
+<p>Hello, <?php echo 'PHP'; ?>!</p>
 </body>
 </html>
 ```
@@ -69,12 +80,13 @@ $words = array('World', 'PHP', 'Web Application');
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8"/>
     <title>test</title>
 </head>
 <body>
-    <p>Hello, <?php echo $words[0]; ?>!</p>
-    <p>Hello, <?php echo $words[1]; ?>!</p>
-    <p>Hello, <?php echo $words[2]; ?>!</p>
+<p>Hello, <?php echo $words[0]; ?>!</p>
+<p>Hello, <?php echo $words[1]; ?>!</p>
+<p>Hello, <?php echo $words[2]; ?>!</p>
 </body>
 </html>
 ```
@@ -94,9 +106,9 @@ $words = array('World', 'PHP', 'Web Application');
 > PHP では変数名は常に `$` で始まる必要があります。
 
 ```php
-    <p>Hello, <?php echo $words[0]; ?>!</p>
-    <p>Hello, <?php echo $words[1]; ?>!</p>
-    <p>Hello, <?php echo $words[2]; ?>!</p>
+<p>Hello, <?php echo $words[0]; ?>!</p>
+<p>Hello, <?php echo $words[1]; ?>!</p>
+<p>Hello, <?php echo $words[2]; ?>!</p>
 ```
 
 その 3 つの各要素をここでそれぞれ出力しているわけですね。
@@ -119,12 +131,13 @@ $words = array('World', 'PHP', 'Web Application');
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8"/>
     <title>test</title>
 </head>
 <body>
-    <?php foreach ($words as $word) { ?>
-        <p>Hello, <?php echo $word; ?>!</p>
-    <?php } ?>
+<?php foreach ($words as $word) { ?>
+    <p>Hello, <?php echo $word; ?>!</p>
+<?php } ?>
 </body>
 </html>
 ```
@@ -138,14 +151,15 @@ $words = array('World', 'PHP', 'Web Application');
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8"/>
     <title>test</title>
 </head>
 <body>
-    <?php
-    foreach ($words as $word) {
-        echo '<p>Hello, ' . $word . '!</p>' . "\n";
-    }
-    ?>
+<?php
+foreach ($words as $word) {
+    echo '<p>Hello, ' . $word . '!</p>' . "\n";
+}
+?>
 </body>
 </html>
 ```
