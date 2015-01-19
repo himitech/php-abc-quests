@@ -1,5 +1,5 @@
 <?php
-define('WEBMASTER_EMAIL', 'gyagigoo@gmail.com');
+$settings = require __DIR__ . '/../../secret-settings.php';
 
 session_start();
 
@@ -23,7 +23,7 @@ switch (strtolower($_SERVER['REQUEST_METHOD'])) {
             ;
             mb_language('Japanese');
             mb_internal_encoding('UTF-8');
-            mb_send_mail(WEBMASTER_EMAIL, '簡易電卓プログラム記念報告', $body, 'From: ' . mb_encode_mimeheader('簡易電卓プログラム') . ' <no-reply@example.com>');
+            mb_send_mail($settings['email'], '簡易電卓プログラム記念報告', $body, 'From: ' . mb_encode_mimeheader('簡易電卓プログラム') . ' <no-reply@example.com>');
         }
 
     case 'get':
@@ -81,6 +81,7 @@ switch (strtolower($_SERVER['REQUEST_METHOD'])) {
 <?php } ?>
     <?php echo "<br>post = "; pre_var_dump($_POST['csrf_key']); ?>
     <?php echo "<br>session = "; pre_var_dump($_SESSION['csrf_key']); ?>
+    <?php echo "<br>email = "; pre_var_dump($settings['email']); ?>
  </body>
 </html>
 
