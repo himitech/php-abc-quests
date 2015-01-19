@@ -12,6 +12,10 @@ PHP のプログラムからメールを送信するには、いくつかの下�
 なお、Mac, Windows どちらの場合も、Gmail の SMTP サーバを利用するため、Gmail アカウントが必要になります。
 Gmail アカウントを持っていない方は [こちらで](https://accounts.google.com/SignUp?service=mail&hl=ja) アカウントを取得しておいてください。
 
+> なお、Google アカウントで 2 段階認証を設定している場合は、通常のパスワードの代わりに `アプリ パスワード` が必要になります。
+> 2 段階認証を設定している Google アカウントを使用する場合は、[こちらで](https://security.google.com/settings/security/apppasswords) `アプリ パスワード` を作成してメモしておいてください。（[参考](https://support.google.com/accounts/answer/185833)）
+> また、以降の設定方法の説明に示す `Gmail のパスワード` は `アプリ パスワード` に読み替えて設定を実施してください。
+
 * [Mac の場合](#mac)
 * [Windows の場合](#win)
 
@@ -69,8 +73,8 @@ $ sudo vi /etc/postfix/sasl_passwd
 
 ```bash
 $ sudo postmap /etc/postfix/sasl_passwd
-$ ls rm /etc/postfix/sasl_passwd.db   # .db ファイルが作成されていることを確認
-$ sudo rm /etc/postfix/sasl_passwd    # もう用済みなので削除
+$ ls /etc/postfix/sasl_passwd.db     # .db ファイルが作成されていることを確認
+$ sudo rm /etc/postfix/sasl_passwd   # もう用済みなので削除
 ```
 
 #### 3. Postfix を再起動
@@ -84,7 +88,7 @@ $ sudo postfix start
 
 以上で下準備は完了です。
 
-[次へ進む](#basic)
+[次へ進む](#setting)
 
 <a name="win"></a>
 ### Windows の場合
@@ -146,9 +150,66 @@ auth_password=[Gmail のパスワード]
 
 以上で下準備は完了です。Apache を忘れずに再起動しておいてください。
 
-[次へ進む](#basic)
+[次へ進む](#setting)
 
-<a name="basic"></a>
+<a name="setting"></a>
+## 設定ファイルを準備
+
+さて、これからメール送信のプログラムを書いていくわけですが、当然、実際に送信したメールを自分で受け取るためには、プログラムのソースコードの中に送信先となる自分のメールアドレスを記入する必要があります。
+
+ソースコードは Git で管理しているので、push すれば **GitHub 上で公開されてしまいます**。これは避けたいですよね。
+
+そこで、ワークツリー上に **Git で管理しないファイル** を用意して、公開したくない情報はそのファイルに記載しておき、プログラムからそのファイルの情報を読み込んで使う、という方法をとることにします。
+
+```
+~/workspace/php-abc-quests/practices/secret-settings.php.placeholder
+```
+
+というファイルがあるので、これを `secret-settings.php` というファイル名でコピーしてください。
+
+```sh
+$ cd ~/workspace/php-abc-quests/practices
+$ cp secret-settings.php.placeholder secret-settings.php
+$ cd -
+```
+
+コピーした `secret-settings.php` は、実は既に **Git の管理対象外とするよう設定されています**。
+以下のファイルを見てください。
+
+```
+~/workspace/php-abc-quests/practices/.gitignore
+```
+
+`.gitignore` というファイルは、Git の管理対象外としたいファイルを指定するための特殊なファイルです。
+中には以下のように書いてあります。
+
+```
+secret-settings.php
+```
+
+つまり、この `.gitignore` と同じ階層に置かれている `secret-settings.php` というファイルを Git 管理対象外とする、という設定がされているわけです。
+`git status` して確認してみてください。ワークツリー上には `secret-settings.php` が追加されているのに、変更としては検出されないはずです。
+
+現状、`secret-settings.php` の中身は
+
+```php
+return array(
+    'email' => 'hogehoge@gmail.com',
+
+    // 必要に応じて自由に設定を追記してください
+);
+```
+
+のようになっています。この `'hogehoge@gmail.com'` の部分をあなたの実際のメールアドレスに変更しておいてください。
+
+これから作るプログラムでは、このファイルを読み込んでメールアドレスを使用します。
+ここに設定したメールアドレスがメールの送信先になりますので、間違いには十分に注意してください。
+
+> ##### ポイント :bulb:
+>
+> このように「プログラムの実行には必要だけど Git では管理しない」ようなファイルがある場合、リモートリポジトリを初めて `git clone` する際にそのファイルを忘れずに作成しなければなりません。
+> 複数のマシンで開発を行う場合などは意外と忘れがちなので、十分に気をつけましょう。
+
 ## 基本編
 
 それではいよいよメール送信のプログラムを書いてみましょう。
@@ -166,10 +227,13 @@ auth_password=[Gmail のパスワード]
 
     $result = "{$left} {$operator} {$right} = {$answer}";
 
+    // 設定ファイルを読み込み.
+    $settings = require __DIR__ . '/../../secret-settings.php';
+
     // 計算結果をメールで送信.
     mb_language('Japanese');
     mb_internal_encoding('UTF-8');
-    mb_send_mail('hogehoge@gmail.com', '計算結果', $result, 'From: ' . mb_encode_mimeheader('簡易電卓プログラム') . ' <no-reply@example.com>');
+    mb_send_mail($settings['email'], '計算結果', $result, 'From: ' . mb_encode_mimeheader('簡易電卓プログラム') . ' <no-reply@example.com>');
 
 } else {
     $result = '計算結果なし';
@@ -177,32 +241,38 @@ auth_password=[Gmail のパスワード]
 ?>
 ```
 
-**`hogehoge@gmail.com` の部分はあなたのメールアドレスに置き換えてください。ここが送信先のメールアドレスになります。**
-
-宛先を書き換えたら、早速、実際にメールを送信してみましょう。
+では、早速、実際にメールを送信してみましょう。
 
 冒頭の `if` 文の内側にメール送信処理を書いたので、パラメータ付きでアクセスされた（計算が行われた）ときにだけメールが送信されます。ブラウザで何か値を入力して `計算する` ボタンをクリックしてみてください。
 
-`簡易電卓プログラム <no-reply@example.com>` という差出人から、件名が `計算結果`、本文が入力した計算の結果となっているメールが届いたでしょうか。
+`簡易電卓プログラム` という差出人から、件名が `計算結果`、本文が入力した計算の結果となっているメールが届いたでしょうか。
 
-> ##### Windows の方へ
+> ##### 差出人メールアドレスについて
 >
-> Windows の場合、Gmail の SMTP サーバを使ってメールを送信しているので、Gmail の仕様により **差出人のメールアドレスは PHP 上で何を指定しても常にあなたの Gmail アドレスになってしまいます。**
+> 届いたメールの差出人メールアドレスは、PHP で指定した `no-reply@example.com` ではなく、あなたの Gmail アドレスになっていると思います。
+>
+> 今回の環境では Gmail の SMTP サーバを使ってメールを送信しているので、Gmail の仕様により **差出人のメールアドレスは PHP 上で何を指定しても常にあなたの Gmail アドレスになってしまいます。**
 > もう少し先へ進めばこの問題は解決しますので、今は気にしないでください :bow:
 
 ### 解説
 
-付け足したコードは 3 行だけです。
+付け足したコードは 4 行だけです。
+
+```php
+$settings = require __DIR__ . '/../../secret-settings.php';
+```
+
+これは先ほど説明した設定ファイルの読み込み箇所ですね。`secret-settings.php` で `return` された配列が `$settings` に格納されます。
 
 ```php
 mb_language('Japanese');
 mb_internal_encoding('UTF-8');
 ```
 
-まずこの 2 行は、次の `mb_send_mail()` 関数を使うためのおまじないみたいなものです。今の時点では気にしなくて OK です。
+この 2 行は、次の `mb_send_mail()` 関数を使うためのおまじないみたいなものです。今の時点では気にしなくて OK です。
 
 ```php
-mb_send_mail('hogehoge@gmail.com', '計算結果', $result, 'From: ' . mb_encode_mimeheader('簡易電卓プログラム') . ' <no-reply@example.com>');
+mb_send_mail($settings['email'], '計算結果', $result, 'From: ' . mb_encode_mimeheader('簡易電卓プログラム') . ' <no-reply@example.com>');
 ```
 
 この一行で、PHP の [mb\_send\_mail()](http://php.net/manual/ja/function.mb-send-mail.php) 関数を使ってメールを実際に送信しています。
@@ -251,7 +321,7 @@ PHP では、以下のように [$_SERVER](http://php.net/manual/ja/reserved.var
 $ip = $_SERVER['REMOTE_ADDR'];
 ```
 
-また、メール送信フォームから送られてくるリクエストは、計算を実行したリクエストは全くの別物なので、メール送信フォームの `<input>` タグで改めて計算結果の文字列を渡す必要があります。
+また、メール送信フォームから送られてくるリクエストは、計算を実行したリクエストとは全くの別物なので、メール送信フォームの `<input>` タグで改めて計算結果の文字列を渡す必要があります。
 
 画面に表示せずに値だけを送信したい場合は、`<input type="hidden" name="" value=""/>` が使えます。
 
