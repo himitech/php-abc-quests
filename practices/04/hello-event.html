@@ -4,15 +4,12 @@
     <meta charset="UTF-8">
     <title>test</title>
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script type="text/javascript" src="hello-event.js"></script>
 </head>
 <body>
 <p id="target">ここが変更されます</p>
-<input type="button" value="変更する" ondblclick="modify()"/>
+<input type="button" value="変更する" id="trigger"/>
 
-<script type="text/javascript">
-    function modify(){
-        $('#target').text('変更されました！');
-    }
-</script>
+
 </body>
 </html>
