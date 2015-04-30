@@ -3,6 +3,7 @@ $settings = require __DIR__ . '/../../secret-settings.php';
 
 session_start();
 
+$kind = isset($_POST['kind']) ? $_POST['kind'] : '';
 $name = isset($_POST['name']) ? $_POST['name'] : '';
 $email = isset($_POST['email']) ? $_POST['email'] : '';
 $tel = isset($_POST['tel']) ? $_POST['tel'] : '';
@@ -38,6 +39,8 @@ if (strtolower($_SERVER['REQUEST_METHOD']) === 'post') {
 
     else{
         $content = <<<EOB
+------------------------------------------------------------
+お問い合せ種別：{$kind}
 ------------------------------------------------------------
 お名前：{$name}
 ------------------------------------------------------------
@@ -130,51 +133,42 @@ function pre_var_dump($var){
 <form id="contact-form" action="index.php" method="POST">
     <table>
         <thead>
-            <td colspan="2" class="<?php echo $result['class']; ?>">
-                <?php echo $result['message']; ?>
-            </td>
+            <tr>
+                <td colspan="2" class="<?php echo $result['class']; ?>"><?php echo $result['message']; ?></td>
+            </tr>
         </thead>
         <tbody>
             <tr>
-                <th><span>*</span>　お名前</th>
+                <th>お問い合せ種別</th>
                 <td>
-                    <input type="text" name="name"
-                    value="<?php echo h($name); ?>"
-                    placeholder="例）山田　太郎"
-                    autofocus
-                    required
-                    />
+                    <label><input type="radio" name="kind" value="ご意見" checked/>ご意見</label>
+                    <label><input type="radio" name="kind" value="ご質問"/>ご質問</label>
+                </td>
+            </tr>
+            <tr>
+                <th><span>*</span>　お名前</th>
+                <td><input type="text" name="name" value="<?php echo h($name); ?>" id="name" placeholder="例）山田　太郎" autofocus required/>
                 </td>
             </tr>
             <tr>
                 <th><span>*</span>　メールアドレス</th>
-                <td>
-                    <input type="email" name="email"
-                    value="<?php echo h($email); ?>"
-                    placeholder="例) email@example.com"
-                    required
-                    />
-                </td>
+                <td><input type="email" name="email" value="<?php echo h($email); ?>" id="email" placeholder="例) email@example.com" required /></td>
             </tr>
-            <tr>
+            <tr class="for-question">
                 <th>お電話番号</th>
-                <td>
-                    <input type="tel" name="tel"
-                    value="<?php echo h($tel); ?>"
-                    placeholder="例) 090-1234-5678"
-                    />
-                </td>
+                <td><input type="tel" name="tel" value="<?php echo h($tel); ?>" id="tel" placeholder="例) 090-1234-5678" /></td>
             </tr>
             <tr>
-                <th><span>*</span>　ご質問内容</th>
-                <td>
-                    <textarea name="message" rows="10" placeholder="ご自由にお書きください" required><?php echo h($message); ?></textarea>
-                </td>
+                <th>
+                    <div class="for-comment"><span>*</span>　ご意見内容</div>
+                    <div class="for-question"><span>*</span>　ご質問内容</div>
+                </th>
+                <td><textarea name="message" rows="10" placeholder="ご自由にお書きください" required><?php echo h($message); ?></textarea></td>
             </tr>
         </tbody>
         <tfoot>
             <td colspan="2">
-                <input type="hidden" name="csrf_key" value="<?php echo generateCsrfKey(); ?>" />
+                <input type="hidden" name="csrf_key" value="<?php echo generateCsrfKey(); ?>"/>
                 <input type="submit" value="送信"/>
                 <input type="reset" value="リセット"/>
             </td>

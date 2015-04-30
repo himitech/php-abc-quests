@@ -31,6 +31,15 @@ table tbody tr td input,
 table tbody tr td textarea {
     width: 100%;
 }
+table tbody tr td input[type='checkbox'],
+table tbody tr td input[type='radio'] {
+    width: auto;
+}
 table tfoot tr td {
     text-align: right;
+}
+
+/* 「ご質問」用の要素は初期状態で非表示に */
+.for-question{
+    display: none;
 }
